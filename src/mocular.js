@@ -8,20 +8,53 @@
 		function Service($injector){
 
 			var expectation = {
-					name: '',
-					args: null,
-					returnValue: undefined,
-					isMet: false
-				};
+				name: '',
+				args: null,
+				body: function(){},
+				returnValue: undefined,
+				isMet: false
+			};
+
+			function verifyExpectation(name){
+				var nameIsCorrect = (name === expectation.name);
+				expectation.isMet = (nameIsCorrect) ? true : expectation.isMet;
+			}
+
+			function buildMethodFunction(definition){
+				return function(){
+					var functionBody = (typeof definition.body === 'function') ? definition.body : function(){};
+
+					verifyExpectation(definition.name);
+					functionBody();
+
+					return definition.returnValue;
+				}
+			}
 
 			function buildExpectation($service){
 				return function(name, args){
 					expectation.name = name;
-					expectation.args = (args) ? args : null;
+
+					//Reset values to default
+					expectation.args = null;
+					expectation.body = function(){};
+					expectation.returnValue = undefined;
 					expectation.isMet = false;
 
 					return $service;
 				}
+			}
+
+			function buildArgumentHandler($service){
+				return function(args){
+					expectation.args = args;
+
+					return $service;
+				}
+			}
+
+			function expectationWasMet(){
+				return expectation.isMet;
 			}
 
 			function build(definition){
@@ -33,11 +66,13 @@
 					methodName = methods[i].name;
 
 					$service[methodName] = (typeof $service[methodName] === 'function') ?
-						function(){} :
+						buildMethodFunction(methods[i]) :
 						$service[methodName];
 				}
 
 				$service.expectCall = buildExpectation($service);
+				$service.withArguments = buildArgumentHandler($service);
+				$service.expectationWasMet = expectationWasMet;
 			}
 
 			return {
