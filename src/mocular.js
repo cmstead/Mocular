@@ -106,13 +106,11 @@
 					methodName;
 
 				for(var i in methods){
-                    if(methods.hasOwnProperty(i)){
-                        methodName = methods[i].name;
+                    methodName = methods[i].name;
 
-                        $service[methodName] = (typeof $service[methodName] === 'function') ?
-                            buildMethodFunction(methods[i]) :
-                            $service[methodName];
-                    }
+                    $service[methodName] = (typeof $service[methodName] === 'function') ?
+                        buildMethodFunction(methods[i]) :
+                        $service[methodName];
 				}
 
 				$service.expectCall = buildExpectationHandler($service);
