@@ -26,8 +26,8 @@ module.exports = function(config){
 
 		colors: true,
 
-		autoWatch: false,
-		singleRun: true
+		autoWatch: true,
+		singleRun: false
 	});
 
 

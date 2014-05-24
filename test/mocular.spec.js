@@ -248,6 +248,235 @@
 
 			});
 
+            describe(': buildPromise', function(){
+
+                it('should be a function', function(){
+                    expect(typeof $mockingService.buildPromise).toBe('function');
+                });
+
+                it('should return an object', function(){
+                    var returnedValue = $mockingService.buildPromise();
+
+                    expect(typeof returnedValue).toBe('object');
+                });
+
+                describe(': returned promise', function(){
+
+                    var $promise;
+
+                    beforeEach(function(){
+                        $promise = $mockingService.buildPromise();
+                    });
+
+                    describe(': constructor', function(){
+
+                        it('should set a default return value', function(){
+                            var $localPromise = $mockingService.buildPromise();
+
+                            expect(JSON.stringify($localPromise.returnData)).
+                                toBe(JSON.stringify([{ data: 'data' }]));
+                        });
+
+                        it('should allow the setting of alternate default returnData', function(){
+                            var testData = [{ data: "test data" }],
+                                $localPromise = $mockingService.buildPromise(testData);
+
+                            expect($localPromise.returnData).toBe(testData);
+                        });
+
+                    });
+
+                    describe(': then', function(){
+
+                        it('should be a function', function(){
+                            expect(typeof $promise.then).toBe('function');
+                        });
+
+                        it('should return its parent object', function(){
+                            var returnedValue = $promise.then(function(){});
+
+                            expect(returnedValue).toBe($promise);
+                        });
+
+                        it('should call resolve function if resolvePromise is true', function(){
+                            var callbackWasCalled = false;
+
+                            function callback(){
+                                callbackWasCalled = true;
+                            }
+
+                            $promise.resolve();
+
+                            $promise.then(callback);
+
+                            expect(callbackWasCalled).toBe(true);
+                        });
+
+                        it('should not execute anything if resolve is null and resolvePromise is true', function(){
+                            var functionWasCalled = false;
+
+                            function callback(){
+                                functionWasCalled = true;
+                            }
+
+                            $promise.then(null, callback);
+
+                            expect(functionWasCalled).toBe(false);
+                        });
+
+                        it('should call reject function if resolvePromise is false', function(){
+                            var functionCalled = '';
+
+                            function resolve(){
+                                functionCalled = "resolve";
+                            }
+
+                            function reject(){
+                                functionCalled = "reject";
+                            }
+
+                            $promise.reject();
+
+                            $promise.then(resolve, reject);
+
+                            expect(functionCalled).toBe('reject');
+
+                        });
+
+                        it('should call resolve function with defined arguments', function(){
+                            var result1, result2;
+
+                            function callback(argument1, argument2){
+                                result1 = argument1;
+                                result2 = argument2;
+                            }
+
+                            $promise.resolve().withValues(['test1', 'test2']);
+
+                            $promise.then(callback);
+
+                            expect(JSON.stringify([result1, result2])).toBe(JSON.stringify(['test1','test2']));
+                        });
+
+                        it('should call reject with an error object', function(){
+                            var response;
+
+                            function callback(error){
+                                response = error;
+                            }
+
+                            $promise.reject();
+
+                            $promise.then(null, callback);
+
+                            expect(response.getMessage()).toBe('An error occurred.');
+                        });
+
+                    });
+
+                    describe(': catch', function(){
+
+                        it('should be a function', function(){
+                            expect(typeof $promise.catch).toBe('function');
+                        });
+
+                        it('should call $promise.then with null and a reject function', function(){
+                            function callback(){};
+
+                            $promise.then = jasmine.createSpy('then');
+                            $promise.catch(callback);
+
+                            expect($promise.then).toHaveBeenCalledWith(null, callback);
+                        });
+
+                        it('should return the $promise object', function(){
+                            var returnedValue = $promise.catch(function(){});
+
+                            expect(returnedValue).toBe($promise);
+                        });
+
+                    });
+
+                    describe(': finally', function(){
+
+                        it('should be a function', function(){
+                            expect(typeof $promise.finally).toBe('function');
+                        });
+
+                        it('should call passed callback', function(){
+                            var functionWasCalled = false;
+
+                            function callback(){
+                                functionWasCalled = true;
+                            }
+
+                            $promise.finally(callback);
+
+                            expect(functionWasCalled).toBe(true);
+                        });
+
+                    });
+
+                    describe(': resolve', function(){
+
+                        it('should be a function', function(){
+                            expect(typeof $promise.resolve).toBe('function');
+                        });
+
+                        it('should return the promise object', function(){
+                            var returnedValue = $promise.resolve();
+
+                            expect(returnedValue).toBe($promise);
+                        });
+
+                        it('should set resolvePromise', function(){
+                            $promise.resolvePromise = false;
+                            $promise.resolve();
+
+                            expect($promise.resolvePromise).toBe(true);
+                        });
+
+                    });
+
+                    describe(': reject', function(){
+
+                        it('should be a function', function(){
+                            expect(typeof $promise.reject).toBe('function');
+                        });
+
+                        it('should return the promise object', function(){
+                            var returnedValue = $promise.reject();
+
+                            expect(returnedValue).toBe($promise);
+                        });
+
+                        it('should set resolvePromise to false', function(){
+                            $promise.reject();
+
+                            expect($promise.resolvePromise).toBe(false);
+                        });
+
+                    });
+
+                    describe(': withValues', function(){
+
+                        it('should be a function', function(){
+                            expect(typeof $promise.withValues).toBe('function');
+                        });
+
+                        it('should set returnData', function(){
+                            var returnData = ['test'];
+
+                            $promise.withValues(returnData);
+
+                            expect($promise.returnData).toBe(returnData);
+                        });
+                    });
+
+                });
+
+            });
+
 		});
 
 	});

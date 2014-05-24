@@ -1,8 +1,60 @@
 (function(ng){
 	'use strict';
 
-	var module = ng.module('mocular.service', []);
+	var Promise,
+        module = ng.module('mocular.service', []);
 
+    //Mock promise definition
+    (function(){
+
+        function promise(data){
+            this.returnData = (data) ? data : [{ data: "data" }];
+        }
+
+        promise.prototype = {
+            resolvePromise: true,
+            returnData: [],
+
+            then: function(resolve, reject){
+
+                if(resolve && this.resolvePromise){
+                    resolve.apply(this, this.returnData);
+                } else if(!this.resolvePromise) {
+                    reject.apply(this, [{ getMessage: function(){
+                        return "An error occurred.";
+                    } }]);
+                }
+
+                return this;
+            },
+
+            catch: function(reject){
+                return this.then(null, reject);
+            },
+
+            finally: function(callback){
+                callback();
+            },
+
+            resolve: function(){
+                this.resolvePromise = true;
+                return this;
+            },
+
+            reject: function(){
+                this.resolvePromise = false;
+                return this;
+            },
+
+            withValues: function(returnData){
+                this.returnData = returnData;
+            }
+        };
+
+        Promise = promise;
+    })();
+
+    //Service mocking service
 	(function(){
 
 		function Service($injector){
@@ -121,8 +173,13 @@
 				$service.expectationWasMet = expectationWasMet;
 			}
 
+            function buildPromise(data){
+                return new Promise(data);
+            }
+
 			return {
-				build: build
+				build: build,
+                buildPromise: buildPromise
 			};
 		}
 
