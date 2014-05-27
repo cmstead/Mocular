@@ -143,7 +143,7 @@
                     });
 
                     it('should return a substitute value if it is the expected method', function(){
-                        $testService.expectCall('get').returning('substitute');
+                        $testService.expectCall('get').withArguments(['test1', 'test2']).usingFunction(function(){}).returning('substitute');
 
                         expect($testService.get()).toBe('substitute');
                     });
