@@ -162,7 +162,15 @@
 						expect(typeof $testService.expectCall).toBe('function');
 					});
 
-					it('should return service it is defined on when called', function(){
+                    /*it('should reset expectations after call', function(){
+                        $testService.expectCall('get');
+
+                        $testService.get();
+
+                        expect()
+                    });*/
+
+                    it('should return service it is defined on when called', function(){
 						var $service = $testService.expectCall('get');
 
 						expect($service).toBe($testService);
@@ -245,6 +253,35 @@
 					});
 
 				});
+
+                describe(': resetExpectation', function(){
+
+                    beforeEach(function(){
+                        $mockingService.build({
+                            name: '$testService',
+                            methods: [
+                                {
+                                    name: 'get'
+                                }
+                            ]
+                        });
+                    });
+
+                    it('should be called after expected function is executed', function(){
+                        var resetExpectation = $testService.resetExpectation;
+
+                        $testService.resetExpectation = jasmine.createSpy('resetExpectation');
+
+                        $testService.expectCall('get');
+
+                        $testService.get(); //$testService.expectationWasMet() -> true
+
+                        $testService.get(); //$testService.expectationWasMet() -> false because of reset
+
+                        expect($testService.expectationWasMet()).toBe(false);
+                    });
+
+                });
 
 			});
 
@@ -370,6 +407,25 @@
                             $promise.then(null, callback);
 
                             expect(response.getMessage()).toBe('An error occurred.');
+                        });
+
+                        it('should reset promise resolution after call', function(){
+                            var rejectCalled = false;
+
+                            function resolve(){
+                                rejectCalled = false;
+                            }
+
+                            function reject(){
+                                rejectCalled = true;
+                            }
+
+                            $promise.reject();
+
+                            $promise.then(resolve, reject);
+                            $promise.then(resolve, reject);
+
+                            expect(rejectCalled).toBe(false);
                         });
 
                     });

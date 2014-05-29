@@ -25,6 +25,8 @@
                     } }]);
                 }
 
+                this.resolvePromise = true;
+
                 return this;
             },
 
@@ -67,6 +69,16 @@
 				isMet: false
 			};
 
+            function resetExpectation(){
+                expectation.name = '';
+
+                //Reset values to default
+                expectation.args = null;
+                expectation.body = null;
+                expectation.returnValue = undefined;
+                expectation.isMet = false;
+            }
+
             function expectationWasMet(){
                 return expectation.isMet;
             }
@@ -89,6 +101,9 @@
             function verifyExpectation(name, args){
 				var nameIsCorrect = (name === expectation.name),
                     argumentsAreCorrect = verifyArguments(args);
+
+                resetExpectation();
+
 				expectation.isMet = (nameIsCorrect && argumentsAreCorrect);
 			}
 
@@ -135,19 +150,20 @@
             function buildMethodFunction(definition){
                 return function(){
                     var functionBody = (typeof definition.body === 'function') ? definition.body : function(){},
-                        isExpectedFunction = (definition.name === expectation.name);
+                        isExpectedFunction = (definition.name === expectation.name),
+                        returnValue = (isExpectedFunction && expectation.returnValue) ?
+                            expectation.returnValue :
+                            definition.returnValue;
+
+                    if(isExpectedFunction && typeof expectation.body === 'function'){
+                        expectation.body.apply(this, Array.prototype.slice.call(arguments, 0));
+                    } else {
+                        functionBody.apply(this, Array.prototype.slice.call(arguments, 0));
+                    }
 
                     verifyExpectation(definition.name, arguments);
 
-                    if(isExpectedFunction && typeof expectation.body === 'function'){
-                        expectation.body();
-                    } else {
-                        functionBody();
-                    }
-
-                    return (isExpectedFunction && expectation.returnValue) ?
-                        expectation.returnValue :
-                        definition.returnValue;
+                    return returnValue;
                 }
             }
 
