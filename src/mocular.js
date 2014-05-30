@@ -8,17 +8,19 @@
     (function(){
 
         function promise(data){
-            this.returnData = (data) ? data : [{ data: "data" }];
+            this.defaultData = (data) ? data : { data: "data" };
         }
 
         promise.prototype = {
             resolvePromise: true,
-            returnData: [],
+            returnData: null,
 
             then: function(resolve, reject){
 
+                var returnData = (this.returnData) ? this.returnData : this.defaultData;
+
                 if(resolve && this.resolvePromise){
-                    resolve.apply(this, this.returnData);
+                    resolve.apply(this, [returnData]);
                 } else if(!this.resolvePromise) {
                     reject.apply(this, [{ getMessage: function(){
                         return "An error occurred.";
@@ -26,6 +28,7 @@
                 }
 
                 this.resolvePromise = true;
+                this.returnData = null;
 
                 return this;
             },

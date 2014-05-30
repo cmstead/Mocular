@@ -310,15 +310,15 @@
                         it('should set a default return value', function(){
                             var $localPromise = $mockingService.buildPromise();
 
-                            expect(JSON.stringify($localPromise.returnData)).
-                                toBe(JSON.stringify([{ data: 'data' }]));
+                            expect(JSON.stringify($localPromise.defaultData)).
+                                toBe(JSON.stringify({ data: 'data' }));
                         });
 
                         it('should allow the setting of alternate default returnData', function(){
-                            var testData = [{ data: "test data" }],
+                            var testData = { data: "test data" },
                                 $localPromise = $mockingService.buildPromise(testData);
 
-                            expect($localPromise.returnData).toBe(testData);
+                            expect($localPromise.defaultData).toBe(testData);
                         });
 
                     });
@@ -383,9 +383,9 @@
                         it('should call resolve function with defined arguments', function(){
                             var result1, result2;
 
-                            function callback(argument1, argument2){
-                                result1 = argument1;
-                                result2 = argument2;
+                            function callback(args){
+                                result1 = args[0];
+                                result2 = args[1];
                             }
 
                             $promise.resolve().withValues(['test1', 'test2']);
@@ -521,11 +521,27 @@
                         });
 
                         it('should set returnData', function(){
-                            var returnData = ['test'];
+                            var returnData = 'test';
 
                             $promise.withValues(returnData);
 
                             expect($promise.returnData).toBe(returnData);
+                        });
+
+                        it('should only exist for a single request', function(){
+                            var localPromise = $mockingService.buildPromise('test data'),
+                                returnedData;
+
+                            function resolve(data){
+                                returnedData = data;
+                            }
+
+                            localPromise.resolve().withValues('test');
+
+                            localPromise.then(resolve);
+                            localPromise.then(resolve);
+
+                            expect(returnedData).toBe('test data');
                         });
                     });
 
