@@ -1,4 +1,5 @@
 #Ignore JetBrains project file
 .idea
+.DS_Store
 node_modules/*
 coverage/*
