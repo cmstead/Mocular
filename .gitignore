@@ -1,3 +1,4 @@
 #Ignore JetBrains project file
 .idea
 node_modules/*
+coverage/*
