@@ -4,10 +4,18 @@ module.exports = function(grunt){
 			unit: {
 				configFile: './test/karma.conf.js'
 			}
-		}
+		},
+        jsdoc : {
+            dist : {
+                src: ['src/*.js', 'test/*.js'],
+                dest: 'doc'
+            }
+        }
 	});
 
-	grunt.loadNpmTasks('grunt-karma');
+    grunt.loadNpmTasks('grunt-jsdoc');
+    grunt.loadNpmTasks('grunt-karma');
 
-	grunt.registerTask('test', ['karma']);
+    grunt.registerTask('test', ['karma']);
+    grunt.registerTask('document', ['jsdoc']);
 }

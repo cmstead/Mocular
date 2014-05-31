@@ -29,6 +29,15 @@
 					expect(typeof $mockingService.build).toBe('function');
 				});
 
+                it('should return a pointer to the mocked service', function(){
+                    var returnedValue = $mockingService.build({
+                        name: "$testService",
+                        methods: []
+                    });
+
+                    expect(returnedValue).toBe($testService);
+                });
+
 				it('should not allow the explicit creation of new methods', function(){
 					$mockingService.build({
 						name: '$testService',
